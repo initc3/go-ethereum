@@ -1,11 +1,9 @@
 FROM golang:1.17.8 as builder
 
-RUN set -eux; \
-        \
-        git clone https://github.com/ethereum/go-ethereum.git /usr/src/go-ethereum; \
-        cd /usr/src/go-ethereum; \
-        make geth;
+WORKDIR /usr/src
+COPY . .
 
+RUN make geth
 
 FROM debian:bullseye-slim
 
