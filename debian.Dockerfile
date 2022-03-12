@@ -7,7 +7,7 @@ RUN make geth
 
 FROM debian:bullseye-slim
 
-COPY --from=builder /usr/src/go-ethereum/build/bin/geth /usr/local/bin/
+COPY --from=builder /usr/src/build/bin/geth /usr/local/bin/
 
 # taken from ./Dockerfile 
 EXPOSE 8545 8546 30303 30303/udp
