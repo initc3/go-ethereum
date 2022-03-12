@@ -1,0 +1,46 @@
+name: ci-build-and-push-image
+
+on:
+  push:
+    branches:
+      - 1.10.16
+      - 1.10.17-unstable
+      - dev
+
+  workflow_dispatch:
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set Short SHA
+        id: vars
+        run: echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
+      -
+        name: Login to Dockerhub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Build & push docker image for ethereum geth
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: |
+            initc3/geth,
+            initc3/geth:${{ github.ref_name }},
+            initc3/geth:${{ steps.vars.outputs.short_sha }}
+          cache-from: type=registry,ref=initc3/geth:buildcache
+          cache-to: type=registry,ref=initc3/geth:buildcache,mode=max
